@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>PChat — Forgot Password</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Syne:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="assets/css/auth.css"/>
+</head>
+<body>
+<div class="ambient-bg"><div class="orb orb1"></div><div class="orb orb2"></div><canvas class="particle-canvas" id="particleCanvas"></canvas><div class="grid-overlay"></div></div>
+<div class="auth-container">
+  <div class="auth-brand">
+    <div class="brand-hex">&#x2B21;</div>
+    <div class="brand-text"><span class="brand-name">PChat</span><span class="brand-tagline">Reset Password</span></div>
+  </div>
+  <div class="auth-card glass-card">
+    <div id="step1">
+      <h3 style="font-family:'Orbitron',sans-serif;font-size:1rem;margin-bottom:8px;color:var(--text-primary);">Forgot Password?</h3>
+      <p style="color:var(--text-muted);font-size:.88rem;margin-bottom:24px;line-height:1.6;">Enter your registered email and we'll send a reset link.</p>
+      <div class="form-group">
+        <label>Email Address</label>
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
+          <input type="email" id="resetEmail" placeholder="you@example.com" autocomplete="email"/>
+        </div>
+      </div>
+      <button class="btn-primary" id="resetBtn" onclick="doForgot()">
+        <span class="btn-text">Send Reset Link</span>
+        <span class="btn-loader" style="display:none;"></span>
+      </button>
+      <div class="auth-status" id="resetStatus"></div>
+    </div>
+    <div id="step2" style="display:none;text-align:center;padding:10px 0;">
+      <div style="font-size:52px;margin-bottom:16px;">&#x1F4EC;</div>
+      <h3 style="font-family:'Orbitron',sans-serif;color:var(--accent);margin-bottom:12px;font-size:1rem;">Check Your Email</h3>
+      <p style="color:var(--text-muted);font-size:.88rem;line-height:1.8;margin-bottom:8px;">A password reset link has been sent to your email.</p>
+      <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:20px;">&#x1F4C2; Check your <strong>Spam / Junk</strong> folder if you don't see it.<br>&#x23F1; Link expires in <strong>1 hour</strong>.</p>
+      <a href="login.html" class="btn-primary" style="display:inline-block;text-decoration:none;width:auto;padding:12px 32px;">Back to Login</a>
+    </div>
+    <div class="e2e-notice" style="margin-top:20px;"><span>&#x1F512;</span> Secure reset via email</div>
+  </div>
+  <div class="auth-footer"><a href="login.html">&#x2190; Back to Login</a> &middot; <a href="terms.html">Terms</a> &middot; <a href="privacy.html">Privacy</a></div>
+</div>
+<div class="toast-container" id="toastContainer"></div>
+<script>
+async function doForgot() {
+  const email = document.getElementById('resetEmail').value.trim();
+  const status = document.getElementById('resetStatus');
+  const btn = document.getElementById('resetBtn');
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    status.textContent = 'Enter a valid email address.';
+    status.className = 'auth-status error';
+    return;
+  }
+  btn.disabled = true;
+  btn.querySelector('.btn-text').style.display = 'none';
+  btn.querySelector('.btn-loader').style.display = 'inline-block';
+  try {
+    const r = await fetch('login.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'forgot_password', email })
+    });
+    const d = await r.json();
+    if (d.success) {
+      document.getElementById('step1').style.display = 'none';
+      document.getElementById('step2').style.display = 'block';
+    } else {
+      status.textContent = d.message || 'Request failed. Please try again.';
+      status.className = 'auth-status error';
+      btn.disabled = false;
+      btn.querySelector('.btn-text').style.display = '';
+      btn.querySelector('.btn-loader').style.display = 'none';
+    }
+  } catch(e) {
+    status.textContent = '&#x26A0; Connection error. Check your internet and try again.';
+    status.className = 'auth-status error';
+    btn.disabled = false;
+    btn.querySelector('.btn-text').style.display = '';
+    btn.querySelector('.btn-loader').style.display = 'none';
+  }
+}
+document.getElementById('resetEmail')?.addEventListener('keydown', e => { if (e.key === 'Enter') doForgot(); });
+// Particle canvas
+(function(){const c=document.getElementById('particleCanvas');if(!c)return;const ctx=c.getContext('2d');c.width=window.innerWidth;c.height=window.innerHeight;const pts=Array.from({length:40},()=>({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.2+.3,dx:(Math.random()-.5)*.3,dy:(Math.random()-.5)*.3,a:Math.random()*.4+.08}));function draw(){ctx.clearRect(0,0,c.width,c.height);pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`rgba(0,245,195,${p.a})`;ctx.fill();p.x+=p.dx;p.y+=p.dy;if(p.x<0||p.x>c.width)p.dx*=-1;if(p.y<0||p.y>c.height)p.dy*=-1;});requestAnimationFrame(draw);}draw();})();
+</script>
+</body>
+</html>

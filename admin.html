@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>PChat Admin Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#060a11;--surface:rgba(255,255,255,0.04);--surface-hover:rgba(255,255,255,0.07);--border:rgba(255,255,255,0.08);--accent:#00f5c3;--accent3:#0af;--text-primary:#eef2ff;--text-muted:#8892a4;--danger:#ff4f6a;--glass-bg:rgba(6,10,17,0.92);--glass-border:rgba(0,245,195,0.12);--sidebar-w:240px;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;font-family:'Syne',sans-serif;background:var(--bg);color:var(--text-primary);overflow-x:hidden;}
+button{font-family:'Syne',sans-serif;cursor:pointer;}
+input,textarea,select{font-family:'Syne',sans-serif;}
+
+/* BG */
+.ambient-bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.orb{position:absolute;border-radius:50%;filter:blur(100px);opacity:.1;}
+.orb1{width:500px;height:500px;background:radial-gradient(circle,#00f5c3,transparent 70%);top:-150px;left:-100px;animation:o1 20s ease-in-out infinite;}
+.orb2{width:400px;height:400px;background:radial-gradient(circle,#7b5ea7,transparent 70%);bottom:-100px;right:-100px;animation:o2 25s ease-in-out infinite;}
+@keyframes o1{0%,100%{transform:translate(0,0)}50%{transform:translate(50px,40px)}}
+@keyframes o2{0%,100%{transform:translate(0,0)}50%{transform:translate(-40px,-50px)}}
+.grid-overlay{position:absolute;inset:0;background-image:linear-gradient(rgba(0,245,195,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(0,245,195,.015) 1px,transparent 1px);background-size:60px 60px;}
+
+/* LOGIN */
+.admin-login{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;}
+.login-card{background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:24px;backdrop-filter:blur(30px);padding:48px 40px;width:100%;max-width:420px;text-align:center;}
+.al-brand{font-family:'Orbitron',sans-serif;font-size:1.4rem;font-weight:800;color:var(--accent);display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px;}
+.al-brand-icon{font-size:2rem;filter:drop-shadow(0 0 16px var(--accent));}
+.al-sub{font-size:.8rem;color:var(--text-muted);margin-bottom:32px;letter-spacing:1px;}
+.fg{margin-bottom:16px;text-align:left;}
+.fg label{font-size:.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;}
+.fg input{width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;color:var(--text-primary);font-size:.9rem;outline:none;transition:border-color .2s;}
+.fg input:focus{border-color:var(--accent);}
+.btn-primary{width:100%;padding:13px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent3));color:#060a11;font-family:'Orbitron',sans-serif;font-size:.82rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .25s;box-shadow:0 4px 20px rgba(0,245,195,.2);margin-top:4px;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,245,195,.4);}
+.login-status{margin-top:14px;font-size:.85rem;color:var(--danger);min-height:20px;}
+
+/* PANEL SHELL */
+.admin-panel{position:relative;z-index:10;display:flex;height:100vh;overflow:hidden;}
+
+/* SIDEBAR */
+.admin-sidebar{width:var(--sidebar-w);height:100vh;flex-shrink:0;background:rgba(6,10,17,.97);border-right:1px solid var(--border);display:flex;flex-direction:column;transition:transform .3s ease;z-index:50;}
+.sb-brand{font-family:'Orbitron',sans-serif;font-size:1rem;font-weight:800;color:var(--accent);padding:20px 20px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
+.sb-brand-icon{font-size:1.6rem;filter:drop-shadow(0 0 10px var(--accent));}
+.admin-nav{flex:1;display:flex;flex-direction:column;gap:3px;padding:12px 10px;overflow-y:auto;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;color:var(--text-muted);font-size:.86rem;font-weight:600;cursor:pointer;transition:all .2s;border:none;background:none;text-align:left;width:100%;position:relative;}
+.nav-item:hover{background:rgba(0,245,195,.06);color:var(--accent);}
+.nav-item.active{background:rgba(0,245,195,.1);color:var(--accent);border-left:3px solid var(--accent);}
+.nav-badge{background:var(--danger);color:#fff;font-size:.58rem;padding:2px 6px;border-radius:10px;margin-left:auto;font-weight:700;}
+.sb-footer{padding:12px 10px;border-top:1px solid var(--border);}
+.sb-logout{width:100%;padding:11px;border:1px solid rgba(255,79,106,.25);border-radius:10px;background:none;color:var(--danger);font-size:.84rem;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.sb-logout:hover{background:rgba(255,79,106,.1);}
+
+/* MOBILE TOPBAR */
+.mobile-topbar{display:none;align-items:center;justify-content:space-between;padding:0 16px;height:56px;background:rgba(6,10,17,.97);border-bottom:1px solid var(--border);flex-shrink:0;z-index:60;position:relative;}
+.mobile-topbar .sb-brand{padding:0;border:none;font-size:.9rem;}
+.hamburger{background:none;border:none;color:var(--text-muted);display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;}
+.hamburger:hover{background:var(--surface-hover);color:var(--accent);}
+.hamburger svg{width:22px;height:22px;}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:40;backdrop-filter:blur(2px);}
+.sidebar-overlay.show{display:block;}
+
+/* MAIN */
+.admin-main-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.admin-main{flex:1;overflow-y:auto;padding:28px 28px 40px;}
+.admin-main::-webkit-scrollbar{width:4px;}
+.admin-main::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px;}
+
+/* SECTIONS */
+.admin-section{display:none;animation:fadeIn .25s ease;}
+.admin-section.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.section-title{font-family:'Orbitron',sans-serif;font-size:1.1rem;margin-bottom:6px;color:var(--text-primary);}
+.section-sub{font-size:.84rem;color:var(--text-muted);margin-bottom:20px;}
+
+/* STATS GRID */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.stat-card{background:var(--glass-bg);border:1px solid var(--border);border-radius:16px;padding:20px;text-align:center;transition:border-color .2s;}
+.stat-card:hover{border-color:rgba(0,245,195,.2);}
+.stat-num{font-family:'Orbitron',sans-serif;font-size:2rem;font-weight:800;color:var(--accent);line-height:1.1;}
+.stat-label{font-size:.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-top:6px;}
+.stat-card.danger-card{border-color:rgba(255,79,106,.15);}
+.stat-card.danger-card .stat-num{color:var(--danger);}
+
+/* CARDS */
+.admin-card{background:var(--glass-bg);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:20px;}
+.admin-card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.admin-card-header h3{font-family:'Orbitron',sans-serif;font-size:.82rem;letter-spacing:1px;}
+.admin-card-body{padding:0;}
+
+/* TABLE WRAPPER — KEY for responsive */
+.table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.table-wrap::-webkit-scrollbar{height:4px;}
+.table-wrap::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px;}
+
+.admin-table{width:100%;border-collapse:collapse;min-width:520px;}
+.admin-table th{text-align:left;padding:11px 16px;font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);border-bottom:1px solid var(--border);white-space:nowrap;background:rgba(255,255,255,.02);}
+.admin-table td{padding:12px 16px;font-size:.85rem;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle;}
+.admin-table tr:last-child td{border-bottom:none;}
+.admin-table tr:hover td{background:rgba(255,255,255,.02);}
+.admin-table img{width:34px;height:34px;border-radius:50%;border:2px solid var(--border);display:block;}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:700;letter-spacing:.5px;}
+.badge.yes{background:rgba(0,245,195,.12);color:var(--accent);border:1px solid rgba(0,245,195,.2);}
+.badge.no{background:rgba(255,79,106,.12);color:var(--danger);border:1px solid rgba(255,79,106,.2);}
+.badge.warn{background:rgba(255,159,67,.12);color:#ff9f43;border:1px solid rgba(255,159,67,.2);}
+
+/* TYPE TAG */
+.type-tag{display:inline-flex;align-items:center;padding:3px 8px;border-radius:6px;font-size:.68rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;}
+
+/* ACTION BUTTONS */
+.action-btn{padding:6px 12px;border-radius:8px;border:none;font-size:.76rem;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.action-btn.view{background:rgba(0,245,195,.1);color:var(--accent);border:1px solid rgba(0,245,195,.2);}
+.action-btn.view:hover{background:rgba(0,245,195,.2);}
+.action-btn.ban{background:rgba(255,79,106,.1);color:var(--danger);border:1px solid rgba(255,79,106,.2);}
+.action-btn.ban:hover{background:rgba(255,79,106,.2);}
+.action-btn.resolve{background:rgba(123,94,167,.15);color:#a78bfa;border:1px solid rgba(123,94,167,.25);}
+.action-btn.resolve:hover{background:rgba(123,94,167,.25);}
+.btn-actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+
+/* FILTERS ROW */
+.filter-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:14px 20px;border-bottom:1px solid var(--border);}
+.filter-btn{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:none;color:var(--text-muted);font-size:.78rem;cursor:pointer;transition:all .2s;}
+.filter-btn:hover,.filter-btn.active{border-color:rgba(0,245,195,.3);color:var(--accent);background:rgba(0,245,195,.06);}
+.search-input{flex:1;min-width:160px;padding:8px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text-primary);font-size:.85rem;outline:none;transition:border-color .2s;}
+.search-input:focus{border-color:rgba(0,245,195,.35);}
+
+/* REPORT CARD (mobile-friendly) */
+.report-card{padding:16px 20px;border-bottom:1px solid var(--border);transition:background .15s;}
+.report-card:last-child{border-bottom:none;}
+.report-card:hover{background:rgba(255,255,255,.02);}
+.rc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px;flex-wrap:wrap;}
+.rc-user{font-weight:700;font-size:.9rem;}
+.rc-email{font-size:.75rem;color:var(--text-muted);margin-top:2px;}
+.rc-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+.rc-subject{font-size:.84rem;color:var(--text-primary);margin-bottom:6px;}
+.rc-preview{font-size:.78rem;color:var(--text-muted);line-height:1.6;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+.rc-actions{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.rc-date{font-size:.72rem;color:var(--text-muted);}
+
+/* USER DETAIL MODAL */
+.ud-modal-overlay{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:16px;}
+.ud-modal-overlay.open{display:flex;}
+.ud-modal{background:rgba(6,10,17,.97);border:1px solid var(--glass-border);border-radius:20px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;}
+.ud-modal::-webkit-scrollbar{width:3px;}
+.ud-modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.ud-modal-header h3{font-family:'Orbitron',sans-serif;font-size:.85rem;letter-spacing:1px;}
+.ud-close{background:none;border:none;color:var(--text-muted);font-size:1.2rem;cursor:pointer;padding:4px 8px;border-radius:6px;transition:all .2s;}
+.ud-close:hover{color:var(--danger);}
+.ud-body{padding:20px;}
+.ud-avatar-row{text-align:center;margin-bottom:20px;}
+.ud-avatar-row img{width:72px;height:72px;border-radius:50%;border:3px solid var(--accent);}
+.ud-name{font-family:'Orbitron',sans-serif;font-size:1rem;margin-top:10px;}
+.ud-email{font-size:.82rem;color:var(--text-muted);margin-top:4px;}
+.ud-status{font-size:.78rem;color:var(--accent);margin-top:6px;}
+.ud-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0;}
+.ud-cell{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;}
+.ud-cell-label{font-size:.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;}
+.ud-cell-val{font-size:.82rem;}
+.ud-btn-col{display:flex;flex-direction:column;gap:8px;}
+
+/* CHAT VIEWER */
+.chat-viewer-split{display:flex;height:400px;}
+.chat-user-list{width:200px;flex-shrink:0;border-right:1px solid var(--border);overflow-y:auto;}
+.chat-user-list::-webkit-scrollbar{width:3px;}
+.chat-user-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);}
+.chat-user-item{padding:12px 14px;cursor:pointer;transition:background .15s;border-bottom:1px solid rgba(255,255,255,.04);}
+.chat-user-item:hover,.chat-user-item.active{background:rgba(0,245,195,.07);}
+.chat-user-item small{font-size:.72rem;color:var(--text-muted);}
+.chat-log-view{flex:1;overflow-y:auto;padding:16px;}
+.chat-log-view::-webkit-scrollbar{width:3px;}
+.chat-log-view::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);}
+.chat-log-placeholder{text-align:center;color:var(--text-muted);padding:40px 20px;font-size:.85rem;}
+.log-msg{padding:10px 14px;border-radius:12px;margin-bottom:8px;font-size:.84rem;line-height:1.5;}
+.log-msg.sent{background:rgba(0,245,195,.08);border:1px solid rgba(0,245,195,.12);align-self:flex-end;}
+.log-msg.recv{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);}
+.log-meta{font-size:.68rem;color:var(--text-muted);margin-bottom:4px;}
+
+/* BROADCAST */
+.broadcast-wrap{padding:20px;}
+.field-label{display:block;font-size:.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;margin-top:16px;}
+.field-label:first-child{margin-top:0;}
+.field-input{width:100%;padding:10px 13px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text-primary);font-size:.88rem;outline:none;transition:border-color .2s;resize:vertical;}
+.field-input:focus{border-color:rgba(0,245,195,.4);}
+.status-msg{margin-top:10px;font-size:.84rem;min-height:18px;}
+.status-msg.success{color:var(--accent);}
+.status-msg.error{color:var(--danger);}
+
+/* TOAST */
+.toast-area{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;max-width:300px;}
+.adm-toast{background:rgba(6,10,17,.97);border-radius:11px;padding:11px 16px;font-size:.82rem;box-shadow:0 6px 28px rgba(0,0,0,.4);animation:tin .3s ease;display:flex;align-items:center;gap:8px;}
+.adm-toast.ok{border:1px solid rgba(0,245,195,.3);}
+.adm-toast.err{border:1px solid rgba(255,79,106,.4);}
+@keyframes tin{from{transform:translateX(60px);opacity:0}to{transform:none;opacity:1}}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:768px){
+  .mobile-topbar{display:flex;}
+  .admin-sidebar{position:fixed;top:0;left:0;bottom:0;transform:translateX(-100%);}
+  .admin-sidebar.open{transform:translateX(0);box-shadow:4px 0 40px rgba(0,0,0,.5);}
+  .admin-panel{flex-direction:column;}
+  .admin-main{padding:16px 14px 40px;}
+  .chat-viewer-split{flex-direction:column;height:auto;}
+  .chat-user-list{width:100%;height:140px;border-right:none;border-bottom:1px solid var(--border);}
+  .chat-log-view{height:300px;}
+  .ud-grid{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:540px){
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .stat-num{font-size:1.5rem;}
+  .login-card{padding:32px 24px;}
+  .ud-grid{grid-template-columns:1fr;}
+}
+@media(max-width:380px){
+  .stats-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div class="ambient-bg"><div class="orb orb1"></div><div class="orb orb2"></div><div class="grid-overlay"></div></div>
+
+<!-- ── LOGIN GATE ── -->
+<div id="adminLogin" class="admin-login">
+  <div class="login-card">
+    <div class="al-brand"><span class="al-brand-icon">&#x2B21;</span> PChat Admin</div>
+    <p class="al-sub">Restricted Access &middot; Authorized Personnel Only</p>
+    <div class="fg"><label>Username</label><input type="text" id="adminUser" placeholder="Admin username" autocomplete="username"/></div>
+    <div class="fg"><label>Password</label><input type="password" id="adminPass" placeholder="Password" autocomplete="current-password"/></div>
+    <button class="btn-primary" onclick="doAdminLogin()">Access Panel</button>
+    <div class="login-status" id="loginStatus"></div>
+  </div>
+</div>
+
+<!-- ── ADMIN PANEL ── -->
+<div id="adminPanel" class="admin-panel" style="display:none;">
+
+  <!-- Mobile topbar -->
+  <div class="mobile-topbar">
+    <div class="sb-brand" style="padding:0;border:none;font-size:.9rem;"><span class="sb-brand-icon">&#x2B21;</span> Admin</div>
+    <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="sb-brand"><span class="sb-brand-icon">&#x2B21;</span> Admin Panel</div>
+    <nav class="admin-nav">
+      <button class="nav-item active" onclick="showSec('dashboard',this)">&#x1F4CA; Dashboard</button>
+      <button class="nav-item" onclick="showSec('users',this)">&#x1F465; Users</button>
+      <button class="nav-item" onclick="showSec('chats',this)">&#x1F4AC; Chat Logs</button>
+      <button class="nav-item" onclick="showSec('reports',this)">&#x1F6A8; Reports <span class="nav-badge" id="rptBadge" style="display:none;"></span></button>
+      <button class="nav-item" onclick="showSec('broadcast',this)">&#x1F4E2; Broadcast</button>
+      <button class="nav-item" onclick="showSec('activity',this)">&#x1F4C8; Activity</button>
+      <button class="nav-item" onclick="showSec('settings',this)">&#x2699;&#xFE0F; Settings</button>
+    </nav>
+    <div class="sb-footer">
+      <button class="sb-logout" onclick="doAdminLogout()">&#x2192; Logout</button>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <div class="admin-main-wrap">
+    <div class="admin-main">
+
+      <!-- DASHBOARD -->
+      <section id="sec-dashboard" class="admin-section active">
+        <h2 class="section-title">Dashboard</h2>
+        <p class="section-sub">Platform overview at a glance.</p>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-num" id="stTotal">&#x2014;</div><div class="stat-label">Total Users</div></div>
+          <div class="stat-card"><div class="stat-num" id="stVerified">&#x2014;</div><div class="stat-label">Verified</div></div>
+          <div class="stat-card"><div class="stat-num" id="stMessages">&#x2014;</div><div class="stat-label">Messages</div></div>
+          <div class="stat-card danger-card"><div class="stat-num" id="stReports">&#x2014;</div><div class="stat-label">Open Reports</div></div>
+        </div>
+        <div class="admin-card">
+          <div class="admin-card-header"><h3>Recent Registrations</h3></div>
+          <div class="admin-card-body"><div class="table-wrap">
+            <table class="admin-table" id="recentUsersTable">
+              <thead><tr><th>Avatar</th><th>Name</th><th>Email</th><th>Joined</th><th>Verified</th></tr></thead>
+              <tbody><tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:20px;">Loading...</td></tr></tbody>
+            </table>
+          </div></div>
+        </div>
+      </section>
+
+      <!-- USERS -->
+      <section id="sec-users" class="admin-section">
+        <h2 class="section-title">All Users</h2>
+        <div class="admin-card">
+          <div class="filter-row">
+            <input type="text" class="search-input" id="userSearch" placeholder="Search name or email..." oninput="filterUsers()"/>
+            <button class="filter-btn active" id="fbAll" onclick="setUserFilter('all',this)">All</button>
+            <button class="filter-btn" id="fbVer" onclick="setUserFilter('verified',this)">Verified</button>
+            <button class="filter-btn" id="fbUnver" onclick="setUserFilter('unverified',this)">Unverified</button>
+            <button class="filter-btn" id="fbBanned" onclick="setUserFilter('banned',this)">Banned</button>
+          </div>
+          <div class="admin-card-body"><div class="table-wrap">
+            <table class="admin-table" id="allUsersTable">
+              <thead><tr><th>Avatar</th><th>Name</th><th>Email</th><th>Joined</th><th>Last Seen</th><th>Verified</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody><tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:20px;">Loading...</td></tr></tbody>
+            </table>
+          </div></div>
+        </div>
+      </section>
+
+      <!-- CHATS -->
+      <section id="sec-chats" class="admin-section">
+        <h2 class="section-title">Chat Logs</h2>
+        <p class="section-sub">Select a user to view their message history.</p>
+        <div class="admin-card">
+          <div class="admin-card-body">
+            <div class="chat-viewer-split">
+              <div class="chat-user-list" id="adminChatUserList"><div style="padding:20px;font-size:.82rem;color:var(--text-muted);">Loading users...</div></div>
+              <div class="chat-log-view" id="adminChatLog"><div class="chat-log-placeholder">Select a user to view their chats</div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- REPORTS -->
+      <section id="sec-reports" class="admin-section">
+        <h2 class="section-title">User Reports</h2>
+        <div class="admin-card">
+          <div class="filter-row">
+            <span style="font-size:.78rem;color:var(--text-muted);margin-right:4px;">Filter:</span>
+            <button class="filter-btn active" id="rfAll" onclick="setRptFilter('all',this)">All</button>
+            <button class="filter-btn" id="rfOpen" onclick="setRptFilter('open',this)">Open</button>
+            <button class="filter-btn" id="rfResolved" onclick="setRptFilter('resolved',this)">Resolved</button>
+          </div>
+          <div class="admin-card-body" id="reportsListWrap">
+            <div style="padding:30px;text-align:center;color:var(--text-muted);">Loading reports...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- BROADCAST -->
+      <section id="sec-broadcast" class="admin-section">
+        <h2 class="section-title">Broadcast Message</h2>
+        <div class="admin-card">
+          <div class="broadcast-wrap">
+            <p class="section-sub" style="margin-bottom:16px;">Send a system message to all verified users via the chat system.</p>
+            <label class="field-label">Target Audience</label>
+            <select class="field-input" id="broadcastTarget" style="cursor:pointer;">
+              <option value="all">All Verified Users</option>
+            </select>
+            <label class="field-label">Message</label>
+            <textarea class="field-input" id="broadcastMsg" rows="6" placeholder="Type your broadcast message here..."></textarea>
+            <button class="btn-primary" style="margin-top:16px;" onclick="sendBroadcast()">&#x1F4E2; Send Broadcast</button>
+            <div class="status-msg" id="broadcastStatus"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ACTIVITY -->
+      <section id="sec-activity" class="admin-section">
+        <h2 class="section-title">Platform Activity</h2>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-num" id="actTotal">&#x2014;</div><div class="stat-label">Total Messages</div></div>
+          <div class="stat-card"><div class="stat-num" id="actUsers">&#x2014;</div><div class="stat-label">Total Users</div></div>
+          <div class="stat-card"><div class="stat-num" id="actVerified">&#x2014;</div><div class="stat-label">Verified Users</div></div>
+          <div class="stat-card danger-card"><div class="stat-num" id="actReports">&#x2014;</div><div class="stat-label">Total Reports</div></div>
+        </div>
+        <div class="admin-card">
+          <div class="admin-card-header"><h3>Recent Users</h3></div>
+          <div class="admin-card-body"><div class="table-wrap">
+            <table class="admin-table" id="actUsersTable">
+              <thead><tr><th>Avatar</th><th>Name</th><th>Email</th><th>Joined</th><th>Verified</th></tr></thead>
+              <tbody><tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:20px;">Loading...</td></tr></tbody>
+            </table>
+          </div></div>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section id="sec-settings" class="admin-section">
+        <h2 class="section-title">Admin Settings</h2>
+        <div class="admin-card">
+          <div class="admin-card-header"><h3>System Information</h3></div>
+          <div class="admin-card-body" style="padding:20px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;" id="sysInfoGrid">
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;">
+                <div style="font-size:.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">PHP Version</div>
+                <div id="sysPhp" style="font-weight:600;">—</div>
+              </div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;">
+                <div style="font-size:.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Server Time</div>
+                <div id="sysTime" style="font-weight:600;">—</div>
+              </div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;">
+                <div style="font-size:.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">DB Size</div>
+                <div id="sysDb" style="font-weight:600;">—</div>
+              </div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;">
+                <div style="font-size:.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Tables</div>
+                <div id="sysTables" style="font-weight:600;">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="admin-card" style="margin-top:16px;">
+          <div class="admin-card-header"><h3>Quick Actions</h3></div>
+          <div class="broadcast-wrap">
+            <button class="btn-primary" style="margin-bottom:10px;" onclick="runInstall()">&#x1F527; Run Database Migrations (install.php)</button>
+            <p style="font-size:.8rem;color:var(--text-muted);">Run this if you just updated to add new features like voice messages, typing indicators, etc.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<!-- User Detail Modal -->
+<div class="ud-modal-overlay" id="udModal">
+  <div class="ud-modal">
+    <div class="ud-modal-header"><h3>User Details</h3><button class="ud-close" onclick="closeUdModal()">&#x2715;</button></div>
+    <div class="ud-body" id="udBody"></div>
+  </div>
+</div>
+
+<!-- Report Detail Modal -->
+<div class="ud-modal-overlay" id="rptModal">
+  <div class="ud-modal">
+    <div class="ud-modal-header"><h3>Report Details</h3><button class="ud-close" onclick="closeRptModal()">&#x2715;</button></div>
+    <div class="ud-body" id="rptBody"></div>
+  </div>
+</div>
+
+<div class="toast-area" id="toastArea"></div>
+
+<script>
+// ══════════════ PChat Admin v2 ══════════════
+const ADMIN_API = 'admin.php';
+let adminToken = null;
+let allUsers = [];
+let allReports = [];
+let userFilter = 'all';
+let rptFilter = 'all';
+
+// ── Auth ──
+async function doAdminLogin() {
+  const user = $('adminUser').value.trim();
+  const pass = $('adminPass').value;
+  const st = $('loginStatus');
+  if (!user || !pass) { st.textContent = 'Enter credentials.'; return; }
+  st.textContent = 'Signing in...';
+  try {
+    const r = await fetch(ADMIN_API, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({action:'admin_login', username:user, password:pass})
+    });
+    const d = await r.json();
+    if (d.success) {
+      adminToken = d.token;
+      $('adminLogin').style.display = 'none';
+      $('adminPanel').style.display = 'flex';
+      loadDashboard();
+    } else {
+      st.textContent = d.message || 'Invalid credentials.';
+    }
+  } catch(e) { st.textContent = 'Connection error.'; }
+}
+
+function doAdminLogout() {
+  adminToken = null;
+  $('adminPanel').style.display = 'none';
+  $('adminLogin').style.display = 'flex';
+  $('loginStatus').textContent = '';
+}
+
+// ── Sidebar toggle (mobile) ──
+function toggleSidebar() {
+  const sb = $('adminSidebar'), ov = $('sidebarOverlay');
+  sb.classList.toggle('open');
+  ov.classList.toggle('show');
+}
+
+// ── Section switch ──
+function showSec(name, btn) {
+  document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+  const sec = $('sec-' + name);
+  if (sec) sec.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  // Close sidebar on mobile after nav
+  if (window.innerWidth <= 768) {
+    $('adminSidebar').classList.remove('open');
+    $('sidebarOverlay').classList.remove('show');
+  }
+  if (name === 'dashboard') loadDashboard();
+  else if (name === 'users') loadUsers();
+  else if (name === 'chats') loadChatUsers();
+  else if (name === 'reports') loadReports();
+  else if (name === 'broadcast') {}
+  else if (name === 'activity') loadActivity();
+  else if (name === 'settings') loadSettings();
+}
+
+// ── Dashboard ──
+async function loadDashboard() {
+  const r = await adminApi({action:'stats'});
+  if (!r || !r.success) return;
+  $('stTotal').textContent = r.total_users || 0;
+  $('stVerified').textContent = r.verified_users || 0;
+  $('stMessages').textContent = r.total_messages || 0;
+  $('stReports').textContent = r.open_complaints || 0;
+  updateReportsBadge(r.open_complaints || 0);
+
+  const tbody = document.querySelector('#recentUsersTable tbody');
+  if (r.recent_users && r.recent_users.length) {
+    tbody.innerHTML = r.recent_users.map(u => `
+      <tr>
+        <td><img src="${avatarUrl(u.email)}" alt=""/></td>
+        <td style="font-weight:600;">${esc(u.name)}</td>
+        <td style="font-size:.8rem;color:var(--text-muted);">${esc(u.email)}</td>
+        <td style="font-size:.78rem;">${fmtDate(u.created_at)}</td>
+        <td><span class="badge ${u.verified?'yes':'no'}">${u.verified?'Verified':'Pending'}</span></td>
+      </tr>`).join('');
+  } else {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:20px;">No users yet.</td></tr>';
+  }
+}
+
+function updateReportsBadge(count) {
+  const b = $('rptBadge');
+  if (count > 0) { b.textContent = count; b.style.display = 'inline'; }
+  else b.style.display = 'none';
+}
+
+// ── Users ──
+async function loadUsers() {
+  const r = await adminApi({action:'all_users'});
+  if (!r || !r.success) return;
+  allUsers = r.users || [];
+  renderUsers();
+}
+
+function setUserFilter(f, btn) {
+  userFilter = f;
+  document.querySelectorAll('#sec-users .filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderUsers();
+}
+
+function filterUsers() { renderUsers(); }
+
+function renderUsers() {
+  const q = ($('userSearch').value || '').toLowerCase();
+  let list = allUsers;
+  if (userFilter === 'verified') list = list.filter(u => u.verified && !u.is_banned);
+  else if (userFilter === 'unverified') list = list.filter(u => !u.verified);
+  else if (userFilter === 'banned') list = list.filter(u => u.is_banned);
+  if (q) list = list.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+
+  const tbody = document.querySelector('#allUsersTable tbody');
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:28px;">No users found.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(u => `
+    <tr>
+      <td><img src="${avatarUrl(u.email)}" alt="" style="border-color:${u.is_banned?'var(--danger)':'var(--border)'};"/></td>
+      <td style="font-weight:600;">${esc(u.name)}</td>
+      <td style="font-size:.78rem;color:var(--text-muted);">${esc(u.email)}</td>
+      <td style="font-size:.75rem;">${fmtDate(u.created_at)}</td>
+      <td style="font-size:.75rem;">${u.last_seen ? fmtDate(u.last_seen) : '<span style="color:var(--text-muted)">Never</span>'}</td>
+      <td><span class="badge ${u.verified?'yes':'no'}">${u.verified?'Yes':'No'}</span></td>
+      <td><span class="badge ${u.is_banned?'no':'yes'}">${u.is_banned?'Banned':'Active'}</span></td>
+      <td><div class="btn-actions">
+        <button class="action-btn view" onclick="openUdModal(${u.id})">Details</button>
+        <button class="action-btn ${u.is_banned?'resolve':'ban'}" onclick="banUser(${u.id},'${esc(u.name)}',${!!u.is_banned})">${u.is_banned?'Unban':'Ban'}</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+async function banUser(id, name, isBanned) {
+  const action = isBanned ? 'Unban' : 'Ban';
+  if (!confirm(`${action} user "${name}"?`)) return;
+  const r = await adminApi({action:'ban_user', user_id:id});
+  if (r && r.success) { adminToast(`${name} ${isBanned?'unbanned':'banned'}`, 'ok'); loadUsers(); }
+  else adminToast(r.message || 'Failed', 'err');
+}
+
+// ── User Detail Modal ──
+function openUdModal(userId) {
+  const u = allUsers.find(x => x.id == userId);
+  if (!u) return;
+  $('udBody').innerHTML = `
+    <div class="ud-avatar-row">
+      <img src="${avatarUrl(u.email)}" alt=""/>
+      <div class="ud-name">${esc(u.name)}</div>
+      <div class="ud-email">${esc(u.email)}</div>
+      ${u.status ? `<div class="ud-status">${esc(u.status)}</div>` : ''}
+    </div>
+    <div class="ud-grid">
+      <div class="ud-cell"><div class="ud-cell-label">Joined</div><div class="ud-cell-val">${fmtDate(u.created_at)}</div></div>
+      <div class="ud-cell"><div class="ud-cell-label">Last Seen</div><div class="ud-cell-val">${u.last_seen ? fmtDate(u.last_seen) : 'Never'}</div></div>
+      <div class="ud-cell"><div class="ud-cell-label">Email Verified</div><div class="ud-cell-val"><span class="badge ${u.verified?'yes':'no'}">${u.verified?'Yes':'No'}</span></div></div>
+      <div class="ud-cell"><div class="ud-cell-label">Account</div><div class="ud-cell-val"><span class="badge ${u.is_banned?'no':'yes'}">${u.is_banned?'Banned':'Active'}</span></div></div>
+    </div>
+    <div class="ud-btn-col">
+      <button class="action-btn view" style="padding:10px;width:100%;text-align:center;" onclick="viewUserChats(${u.id},'${esc(u.name)}');closeUdModal();showSec('chats',document.querySelectorAll('.nav-item')[2]);">View Chat History</button>
+      <button class="action-btn ${u.is_banned?'resolve':'ban'}" style="padding:10px;width:100%;text-align:center;" onclick="banUser(${u.id},'${esc(u.name)}',${!!u.is_banned});closeUdModal();">${u.is_banned?'Unban User':'Ban User'}</button>
+    </div>
+  `;
+  $('udModal').classList.add('open');
+}
+function closeUdModal() { $('udModal').classList.remove('open'); }
+$('udModal').addEventListener('click', e => { if (e.target === $('udModal')) closeUdModal(); });
+
+// ── Chats ──
+async function loadChatUsers() {
+  const r = await adminApi({action:'all_users'});
+  if (!r || !r.success) return;
+  const list = $('adminChatUserList');
+  list.innerHTML = (r.users || []).map(u => `
+    <div class="chat-user-item" onclick="viewUserChats(${u.id},'${esc(u.name)}',this)">
+      <strong style="font-size:.84rem;">${esc(u.name)}</strong><br>
+      <small>${esc(u.email)}</small>
+    </div>`).join('');
+}
+
+async function viewUserChats(userId, name, el) {
+  document.querySelectorAll('.chat-user-item').forEach(i => i.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const log = $('adminChatLog');
+  log.innerHTML = '<div class="chat-log-placeholder">Loading...</div>';
+  const r = await adminApi({action:'user_chats', user_id:userId});
+  if (!r || !r.success || !r.messages || !r.messages.length) {
+    log.innerHTML = `<div class="chat-log-placeholder">No messages found for ${esc(name)}</div>`;
+    return;
+  }
+  log.innerHTML = `<div style="font-size:.78rem;color:var(--text-muted);margin-bottom:12px;">Messages by <strong style="color:var(--text-primary);">${esc(name)}</strong></div>` +
+    r.messages.map(m => `
+      <div class="log-msg ${m.sender_id == userId ? 'sent' : 'recv'}">
+        <div class="log-meta">${m.sender_id == userId ? '&#x2192; To: '+esc(m.receiver_name||'?') : '&#x2190; From: '+esc(m.sender_name||'?')} &middot; ${fmtDate(m.created_at)} ${fmtTime(m.created_at)}</div>
+        <div>${esc(m.message)}</div>
+      </div>`).join('');
+}
+
+// ── Reports ──
+async function loadReports() {
+  const wrap = $('reportsListWrap');
+  wrap.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);">Loading reports...</div>';
+  const r = await adminApi({action:'complaints'});
+  if (!r || !r.success) {
+    wrap.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);">Failed to load reports.</div>';
+    return;
+  }
+  allReports = r.complaints || [];
+  const openCount = allReports.filter(x => x.status === 'open').length;
+  updateReportsBadge(openCount);
+  renderReports();
+}
+
+function setRptFilter(f, btn) {
+  rptFilter = f;
+  document.querySelectorAll('#sec-reports .filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderReports();
+}
+
+function renderReports() {
+  const wrap = $('reportsListWrap');
+  let list = allReports;
+  if (rptFilter === 'open') list = list.filter(x => x.status === 'open');
+  else if (rptFilter === 'resolved') list = list.filter(x => x.status !== 'open');
+
+  if (!list.length) {
+    wrap.innerHTML = `<div style="padding:40px;text-align:center;color:var(--text-muted);font-size:.88rem;">No ${rptFilter !== 'all' ? rptFilter + ' ' : ''}reports found.</div>`;
+    return;
+  }
+
+  wrap.innerHTML = list.map(c => {
+    const typeMatch = c.subject && c.subject.match(/^\[([^\]]+)\]/);
+    const typeTag = typeMatch ? typeMatch[1] : 'GENERAL';
+    const isUserRpt = typeTag.includes('USER REPORT');
+    const tagColor = isUserRpt ? 'rgba(255,79,106,.15)' : 'rgba(0,245,195,.1)';
+    const tagTxtColor = isUserRpt ? 'var(--danger)' : 'var(--accent)';
+    const subject = (c.subject || '').replace(/^\[[^\]]+\]\s*/, '');
+    return `
+      <div class="report-card">
+        <div class="rc-top">
+          <div>
+            <div class="rc-user">${esc(c.user_name || 'Unknown')}</div>
+            <div class="rc-email">${esc(c.user_email || '—')}</div>
+          </div>
+          <span class="badge ${c.status === 'open' ? 'no' : 'yes'}">${c.status}</span>
+        </div>
+        <div class="rc-meta">
+          <span class="type-tag" style="background:${tagColor};color:${tagTxtColor};border:1px solid ${tagTxtColor}33;">${esc(typeTag)}</span>
+          <span class="rc-date">${fmtDate(c.created_at)}</span>
+        </div>
+        <div class="rc-subject">${esc(subject.substring(0, 100))}</div>
+        <div class="rc-preview">${esc(c.message || '—')}</div>
+        <div class="rc-actions">
+          <button class="action-btn view" onclick="openRptModal(${c.id})">&#x1F4CB; Full Details</button>
+          ${c.status === 'open' ? `<button class="action-btn resolve" onclick="resolveReport(${c.id})">&#x2713; Resolve</button>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function openRptModal(id) {
+  const c = allReports.find(x => x.id == id);
+  if (!c) return;
+  const typeMatch = c.subject && c.subject.match(/^\[([^\]]+)\]/);
+  const typeTag = typeMatch ? typeMatch[1] : 'GENERAL';
+  const subject = (c.subject || '').replace(/^\[[^\]]+\]\s*/, '');
+  $('rptBody').innerHTML = `
+    <div style="margin-bottom:16px;padding:14px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;">
+      <div style="font-size:.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Reporter</div>
+      <div style="font-weight:700;">${esc(c.user_name || 'Unknown')}</div>
+      <div style="font-size:.78rem;color:var(--text-muted);margin-top:2px;">${esc(c.user_email || '—')}</div>
+    </div>
+    <div style="margin-bottom:14px;">
+      <div style="font-size:.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Type &amp; Subject</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <span class="type-tag" style="background:rgba(0,245,195,.1);color:var(--accent);border:1px solid rgba(0,245,195,.2);">${esc(typeTag)}</span>
+        <span class="badge ${c.status === 'open' ? 'no' : 'yes'}">${c.status}</span>
+      </div>
+      <div style="font-size:.9rem;font-weight:600;">${esc(subject)}</div>
+    </div>
+    <div style="margin-bottom:16px;">
+      <div style="font-size:.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Full Message</div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:.85rem;line-height:1.75;color:var(--text-primary);white-space:pre-wrap;max-height:200px;overflow-y:auto;">${esc(c.message || '—')}</div>
+    </div>
+    <div style="font-size:.72rem;color:var(--text-muted);margin-bottom:16px;">Submitted: ${fmtDate(c.created_at)} ${fmtTime(c.created_at)}</div>
+    ${c.status === 'open' ? `<button class="btn-primary" style="margin-bottom:10px;" onclick="resolveReport(${c.id});closeRptModal();">&#x2713; Mark Resolved</button>` : ''}
+    <button onclick="closeRptModal()" style="width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;background:none;color:var(--text-muted);cursor:pointer;font-family:'Syne',sans-serif;">Close</button>
+  `;
+  $('rptModal').classList.add('open');
+}
+function closeRptModal() { $('rptModal').classList.remove('open'); }
+$('rptModal').addEventListener('click', e => { if (e.target === $('rptModal')) closeRptModal(); });
+
+async function resolveReport(id) {
+  const r = await adminApi({action:'resolve_complaint', complaint_id:id});
+  if (r && r.success) { adminToast('Report resolved', 'ok'); loadReports(); }
+  else adminToast((r && r.message) || 'Failed', 'err');
+}
+
+// ── Broadcast ──
+async function sendBroadcast() {
+  const msg = $('broadcastMsg').value.trim();
+  const st = $('broadcastStatus');
+  if (!msg) { st.textContent = 'Message cannot be empty.'; st.className = 'status-msg error'; return; }
+  st.textContent = 'Sending...'; st.className = 'status-msg';
+  const r = await adminApi({action:'broadcast', message:msg});
+  if (r.success) {
+    $('broadcastMsg').value = '';
+    st.textContent = r.message || ('Broadcast sent to ' + (r.recipient_count||0) + ' users!');
+    st.className = 'status-msg success';
+    adminToast('Broadcast sent!', 'ok');
+  } else {
+    st.textContent = r.message || 'Failed.';
+    st.className = 'status-msg error';
+  }
+}
+
+// ── Activity ──
+async function loadActivity() {
+  const r = await adminApi({action:'stats'});
+  if (!r || !r.success) return;
+  $('actTotal').textContent = r.total_messages || 0;
+  $('actUsers').textContent = r.total_users || 0;
+  $('actVerified').textContent = r.verified_users || 0;
+  $('actReports').textContent = (r.open_complaints || 0) + (r.closed_complaints || 0);
+
+  if (r.recent_users && r.recent_users.length) {
+    const tbody = document.querySelector('#actUsersTable tbody');
+    tbody.innerHTML = r.recent_users.map(u => `
+      <tr>
+        <td><img src="${avatarUrl(u.email)}" alt=""/></td>
+        <td style="font-weight:600;">${esc(u.name)}</td>
+        <td style="font-size:.78rem;color:var(--text-muted);">${esc(u.email)}</td>
+        <td style="font-size:.75rem;">${fmtDate(u.created_at)}</td>
+        <td><span class="badge ${u.verified?'yes':'no'}">${u.verified?'Yes':'No'}</span></td>
+      </tr>`).join('');
+  }
+}
+
+// ── API ──
+async function adminApi(data) {
+  data.admin_token = adminToken;
+  try {
+    const r = await fetch(ADMIN_API, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(data)
+    });
+    return await r.json();
+  } catch(e) { return {success:false, message:'Connection error'}; }
+}
+
+// ── Helpers ──
+function $(id) { return document.getElementById(id); }
+function avatarUrl(email) {
+  const cols = ['00f5c3','0aaff0','7b5ea7','ff9f43','ff6b9d','ffd32a'];
+  const idx = (email||'?').charCodeAt(0) % cols.length;
+  const l = encodeURIComponent(((email||'?')[0]).toUpperCase());
+  return `https://ui-avatars.com/api/?name=${l}&background=${cols[idx]}&color=0a0f1c&size=64&bold=true`;
+}
+function fmtTime(ts) {
+  if (!ts) return '';
+  const d = new Date(ts.includes('T') ? ts : ts.replace(' ','T')+'Z');
+  return isNaN(d) ? '' : d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+}
+function fmtDate(ts) {
+  if (!ts) return '';
+  const d = new Date(ts.includes('T') ? ts : ts.replace(' ','T')+'Z');
+  return isNaN(d) ? '' : d.toLocaleDateString([], {day:'numeric', month:'short', year:'numeric'});
+}
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function adminToast(msg, type='ok') {
+  const area = $('toastArea');
+  const t = document.createElement('div');
+  t.className = `adm-toast ${type}`;
+  t.innerHTML = `<span>${type==='ok'?'\u2713':'\u2715'}</span>${msg}`;
+  area.appendChild(t);
+  setTimeout(()=>{ t.style.transition='all .3s'; t.style.opacity='0'; t.style.transform='translateX(60px)'; setTimeout(()=>t.remove(),300); },3000);
+}
+
+// ── Settings / System stats ──
+async function loadSettings() {
+  const r = await adminApi({action:'system_stats'});
+  if (!r.success) return;
+  $('sysPhp').textContent = r.php_version || '—';
+  $('sysTime').textContent = r.server_time || '—';
+  $('sysDb').textContent = (r.db_size_mb || 0) + ' MB';
+  $('sysTables').textContent = r.table_count || '—';
+}
+function runInstall() {
+  if (!confirm('Run install.php to apply database migrations?')) return;
+  window.open('install.php', '_blank');
+}
+
+// ── Enter key on login ──
+document.addEventListener('DOMContentLoaded', () => {
+  $('adminPass').addEventListener('keydown', e => { if (e.key === 'Enter') doAdminLogin(); });
+  $('adminUser').addEventListener('keydown', e => { if (e.key === 'Enter') $('adminPass').focus(); });
+});
+</script>
+</body>
+</html>

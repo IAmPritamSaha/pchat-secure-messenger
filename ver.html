@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>PChat — Email Verification</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Syne:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="assets/css/auth.css"/>
+</head>
+<body>
+<div class="ambient-bg"><div class="orb orb1"></div><div class="orb orb2"></div><canvas class="particle-canvas" id="particleCanvas"></canvas><div class="grid-overlay"></div></div>
+<div class="auth-container">
+  <div class="auth-brand"><div class="brand-hex">&#x2B21;</div><div class="brand-text"><span class="brand-name">PChat</span><span class="brand-tagline">Email Verification</span></div></div>
+  <div class="auth-card glass-card" style="text-align:center;">
+    <div id="verifyingMsg">
+      <div style="font-size:48px;margin-bottom:16px;">&#x23F3;</div>
+      <h3 style="font-family:'Orbitron',sans-serif;font-size:1rem;margin-bottom:8px;color:var(--text-primary);">Verifying…</h3>
+      <p style="color:var(--text-muted);font-size:.88rem;">Please wait while we verify your email.</p>
+    </div>
+    <div id="successMsg" style="display:none;">
+      <div style="font-size:52px;margin-bottom:16px;">&#x1F389;</div>
+      <h3 style="font-family:'Orbitron',sans-serif;color:var(--accent);margin-bottom:12px;font-size:1rem;">Email Verified!</h3>
+      <p style="color:var(--text-muted);font-size:.88rem;margin-bottom:20px;line-height:1.6;">Your account is now active.<br>You can sign in to PChat.</p>
+      <a href="login.html" class="btn-primary" style="display:inline-block;text-decoration:none;width:auto;padding:12px 32px;">Sign In Now</a>
+    </div>
+    <div id="errorMsg" style="display:none;">
+      <div style="font-size:52px;margin-bottom:16px;">&#x26A0;&#xFE0F;</div>
+      <h3 style="font-family:'Orbitron',sans-serif;color:var(--danger);margin-bottom:12px;font-size:1rem;">Verification Failed</h3>
+      <p style="color:var(--text-muted);font-size:.88rem;margin-bottom:20px;line-height:1.6;" id="errorText">The verification link is invalid or has expired.</p>
+      <a href="login.html" class="btn-primary" style="display:inline-block;text-decoration:none;width:auto;padding:12px 32px;margin-bottom:10px;">Back to Login</a><br>
+      <button class="btn-ghost" style="margin-top:8px;width:auto;padding:10px 24px;" onclick="location.href='login.html?resend=1'">Resend Verification Email</button>
+    </div>
+  </div>
+  <div class="auth-footer"><a href="login.html">&#x2190; Back to Login</a></div>
+</div>
+<script>
+(async function(){
+  const token = new URLSearchParams(location.search).get('token');
+  if (!token) { show('errorMsg'); return; }
+  try {
+    const r = await fetch('ver.php?token=' + encodeURIComponent(token));
+    const d = await r.json();
+    if (d.success) {
+      show('successMsg');
+      setTimeout(() => location.href = 'login.html', 3000);
+    } else {
+      document.getElementById('errorText').textContent = d.message || 'Verification link is invalid or expired.';
+      show('errorMsg');
+    }
+  } catch(e) {
+    document.getElementById('errorText').textContent = 'Connection error. Please try again.';
+    show('errorMsg');
+  }
+  function show(id) {
+    document.getElementById('verifyingMsg').style.display = 'none';
+    document.getElementById(id).style.display = 'block';
+  }
+})();
+(function(){const c=document.getElementById('particleCanvas');if(!c)return;const ctx=c.getContext('2d');c.width=window.innerWidth;c.height=window.innerHeight;const pts=Array.from({length:35},()=>({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.2+.3,dx:(Math.random()-.5)*.3,dy:(Math.random()-.5)*.3,a:Math.random()*.4+.08}));function draw(){ctx.clearRect(0,0,c.width,c.height);pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`rgba(0,245,195,${p.a})`;ctx.fill();p.x+=p.dx;p.y+=p.dy;if(p.x<0||p.x>c.width)p.dx*=-1;if(p.y<0||p.y>c.height)p.dy*=-1;});requestAnimationFrame(draw);}draw();})();
+</script>
+</body>
+</html>

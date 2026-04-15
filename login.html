@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>PChat — India's Encrypted Messenger</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Syne:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="assets/css/auth.css"/>
+</head>
+<body>
+
+<div class="ambient-bg">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+  <canvas class="particle-canvas" id="particleCanvas"></canvas>
+  <div class="grid-overlay"></div>
+</div>
+
+<div class="auth-container">
+
+  <div class="auth-brand">
+    <div class="brand-hex">&#x2B21;</div>
+    <div class="brand-text">
+      <span class="brand-name">PChat</span>
+      <span class="brand-tagline">Encrypted &middot; Private &middot; Made for India 🇮🇳</span>
+    </div>
+  </div>
+
+  <div class="auth-card glass-card">
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="loginTab" onclick="switchTab('login')">Sign In</button>
+      <button class="auth-tab" id="registerTab" onclick="switchTab('register')">Create Account</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="auth-form" id="loginForm">
+      <div class="form-group">
+        <label>Email Address</label>
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
+          <input type="text" id="loginEmail" placeholder="Email or phone number" autocomplete="username" inputmode="email"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" id="loginPassword" placeholder="&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;" autocomplete="current-password"/>
+          <button class="toggle-pass" onclick="togglePass('loginPassword')" type="button" aria-label="Show password">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="checkbox-label"><input type="checkbox" id="rememberMe"/> Remember me</label>
+        <a href="forgot.html" class="forgot-link">Forgot password?</a>
+      </div>
+      <button class="btn-primary" id="loginBtn" onclick="doLogin()">
+        <span class="btn-text">Sign In</span>
+        <span class="btn-loader" style="display:none;"></span>
+      </button>
+      <div class="auth-status" id="loginStatus"></div>
+    </div>
+
+    <!-- REGISTER -->
+    <div class="auth-form" id="registerForm" style="display:none;">
+      <div class="form-group">
+        <label>Display Name (अपना नाम)</label>
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <input type="text" id="regName" placeholder="Your full name" autocomplete="name" maxlength="80"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
+          <input type="email" id="regEmail" placeholder="you@example.com" autocomplete="email"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Mobile Number (Optional) 🇮🇳</label>
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          <span style="color:var(--text-muted);font-size:.85rem;padding-right:4px;white-space:nowrap;">+91</span>
+          <input type="tel" id="regPhone" placeholder="10-digit mobile number" maxlength="10" pattern="[0-9]{10}"/>
+        </div>
+        <div style="font-size:.68rem;color:var(--text-muted);margin-top:4px;">For recovery only. Not shown to others.</div>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" id="regPassword" placeholder="Min 8 characters" autocomplete="new-password"/>
+          <button class="toggle-pass" onclick="togglePass('regPassword')" type="button" aria-label="Show password">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div class="password-strength" id="passStrength">
+          <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+          <span class="strength-label" id="strengthLabel">Strength</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Confirm Password</label>
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" id="regConfirm" placeholder="Repeat password" autocomplete="new-password"/>
+        </div>
+      </div>
+      <div class="terms-check">
+        <label class="checkbox-label">
+          <input type="checkbox" id="agreeTerms"/>
+          I agree to the <a href="#" onclick="openTermsModal();return false;">Terms &amp; Conditions</a>
+        </label>
+      </div>
+      <button class="btn-primary" id="registerBtn" onclick="doRegister()">
+        <span class="btn-text">Create Account 🇮🇳</span>
+        <span class="btn-loader" style="display:none;"></span>
+      </button>
+      <div class="auth-status" id="registerStatus"></div>
+    </div>
+
+    <div class="e2e-notice">
+      <span>&#x1F512;</span> End-to-end encrypted messaging &middot; Made for India 🇮🇳
+    </div>
+  </div>
+
+  <div class="auth-footer">
+    PChat &copy; 2025 &middot;
+    <a href="terms.html">Terms</a> &middot;
+    <a href="privacy.html">Privacy</a>
+  </div>
+</div>
+
+<!-- VERIFY MODAL -->
+<div class="modal-overlay" id="verifyModal" style="display:none;">
+  <div class="modal glass-modal verify-modal">
+    <div class="verify-icon">&#x1F4E7;</div>
+    <h3>Verify Your Email</h3>
+    <p>A verification link has been sent to <strong id="verifyEmailDisplay"></strong></p>
+    <div class="verify-tips">
+      <div class="tip-item">&#x2705; Check your inbox</div>
+      <div class="tip-item">&#x1F4C2; Check <strong>Spam / Junk</strong> folder too</div>
+      <div class="tip-item">&#x23F1; Link expires in 24 hours</div>
+    </div>
+    <button class="btn-primary" onclick="document.getElementById('verifyModal').style.display='none'">Got it!</button>
+    <button class="btn-ghost" id="resendVerifyBtn" onclick="resendVerification()">Resend Email</button>
+  </div>
+</div>
+
+<!-- TERMS MODAL -->
+<div class="modal-overlay" id="termsModal" style="display:none;">
+  <div class="modal glass-modal wide-modal">
+    <div class="modal-header">
+      <h3>Terms &amp; Conditions</h3>
+      <button class="modal-close" onclick="document.getElementById('termsModal').style.display='none'">&#x2715;</button>
+    </div>
+    <div class="modal-body terms-body" id="authTermsContent"></div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="assets/js/auth.js"></script>
+<script>
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>

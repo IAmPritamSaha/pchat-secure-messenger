@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>PChat &mdash; Privacy Policy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#080c14;--surface:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.08);--accent:#00f5c3;--accent3:#0af;--text-primary:#eef2ff;--text-muted:#8892a4;--danger:#ff4f6a;--glass-border:rgba(0,245,195,0.10);}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100vh;font-family:'Syne',sans-serif;background:var(--bg);color:var(--text-primary);}
+.ambient-bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.orb{position:absolute;border-radius:50%;filter:blur(120px);opacity:.08;}
+.orb1{width:500px;height:500px;background:radial-gradient(circle,#00f5c3,transparent 70%);top:-150px;right:-150px;animation:o1 20s ease-in-out infinite;}
+.orb2{width:400px;height:400px;background:radial-gradient(circle,#7b5ea7,transparent 70%);bottom:-100px;left:-100px;animation:o2 25s ease-in-out infinite;}
+@keyframes o1{0%,100%{transform:translate(0,0)}50%{transform:translate(-60px,50px)}}
+@keyframes o2{0%,100%{transform:translate(0,0)}50%{transform:translate(50px,-60px)}}
+.page-wrap{position:relative;z-index:10;max-width:780px;margin:0 auto;padding:40px 24px 80px;}
+.page-header{text-align:center;margin-bottom:48px;padding-bottom:32px;border-bottom:1px solid var(--border);}
+.logo-icon{font-size:2.5rem;color:var(--accent);filter:drop-shadow(0 0 20px var(--accent));display:block;margin-bottom:16px;}
+.logo-name{font-family:'Orbitron',sans-serif;font-size:1.2rem;font-weight:800;letter-spacing:3px;color:var(--accent);}
+.page-title{font-family:'Orbitron',sans-serif;font-size:1.8rem;font-weight:800;margin:12px 0 8px;letter-spacing:1px;}
+.page-sub{font-size:.88rem;color:var(--text-muted);}
+.content-card{background:rgba(10,15,28,.7);border:1px solid var(--border);border-radius:20px;padding:36px;backdrop-filter:blur(20px);margin-bottom:24px;}
+h2{font-family:'Orbitron',sans-serif;font-size:.85rem;color:var(--text-primary);margin:28px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border);letter-spacing:1px;}
+h2:first-child{margin-top:0;}
+p{font-size:.9rem;color:var(--text-muted);line-height:1.85;margin-bottom:10px;}
+ul{padding-left:20px;margin-bottom:12px;}
+li{font-size:.9rem;color:var(--text-muted);line-height:1.85;margin-bottom:6px;}
+li::marker{color:var(--accent);}
+strong{color:var(--text-primary);}
+.nav-links{display:flex;justify-content:center;gap:16px;margin-top:32px;flex-wrap:wrap;}
+.nav-link{padding:10px 22px;border:1px solid var(--border);border-radius:12px;background:var(--surface);color:var(--text-muted);text-decoration:none;font-size:.82rem;transition:all .2s;}
+.nav-link:hover{border-color:rgba(0,245,195,.3);color:var(--accent);}
+.nav-link.active{border-color:rgba(0,245,195,.3);color:var(--accent);background:rgba(0,245,195,.06);}
+.last-updated{text-align:center;font-size:.75rem;color:var(--text-muted);margin-top:32px;padding-top:20px;border-top:1px solid var(--border);}
+.highlight-box{background:rgba(0,245,195,.06);border:1px solid rgba(0,245,195,.15);border-radius:12px;padding:16px 20px;margin:16px 0;}
+.highlight-box p{margin:0;font-size:.88rem;}
+.data-table{width:100%;border-collapse:collapse;margin:12px 0;}
+.data-table th,.data-table td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);font-size:.85rem;}
+.data-table th{font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);background:rgba(255,255,255,.03);}
+.data-table td:first-child{color:var(--text-primary);font-weight:600;}
+.data-table td:nth-child(2){color:var(--text-muted);}
+.yes-tag{color:var(--accent);font-size:.8rem;}
+.no-tag{color:var(--danger);font-size:.8rem;}
+.rights-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;}
+.right-card{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;padding:14px;}
+.right-icon{font-size:1.3rem;margin-bottom:6px;}
+.right-title{font-size:.8rem;font-weight:700;color:var(--text-primary);margin-bottom:4px;}
+.right-desc{font-size:.76rem;color:var(--text-muted);line-height:1.6;}
+@media(max-width:480px){.rights-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="ambient-bg"><div class="orb orb1"></div><div class="orb orb2"></div></div>
+<div class="page-wrap">
+  <div class="page-header">
+    <span class="logo-icon">&#x1F512;</span>
+    <span class="logo-name">PChat</span>
+    <h1 class="page-title">Privacy Policy</h1>
+    <p class="page-sub">Your privacy is fundamental to how we build PChat. Here is exactly what we do with your data.</p>
+    <div class="nav-links">
+      <a href="login.html" class="nav-link">&#x2190; Back to App</a>
+      <a href="terms.html" class="nav-link">Terms</a>
+      <a href="privacy.html" class="nav-link active">Privacy Policy</a>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="highlight-box"><p>&#x1F4CC; <strong>Summary:</strong> We collect only your email and name. We never sell your data. Your messages are end-to-end encrypted and we cannot read them. You can request deletion at any time.</p></div>
+
+    <h2>1. Information We Collect</h2>
+    <table class="data-table">
+      <thead><tr><th>Data Type</th><th>What &amp; Why</th><th>Required</th></tr></thead>
+      <tbody>
+        <tr><td>Email Address</td><td>Account creation, verification, login</td><td><span class="yes-tag">&#x2713; Yes</span></td></tr>
+        <tr><td>Display Name</td><td>Shown to other users in chats</td><td><span class="yes-tag">&#x2713; Yes</span></td></tr>
+        <tr><td>Status Message</td><td>Optional bio shown in your profile</td><td><span class="no-tag">&#x2715; Optional</span></td></tr>
+        <tr><td>Session Token</td><td>Keeps you logged in securely</td><td><span class="yes-tag">&#x2713; Yes</span></td></tr>
+        <tr><td>Last-Seen Timestamp</td><td>Shows your online status to contacts</td><td><span class="yes-tag">&#x2713; Yes</span></td></tr>
+        <tr><td>Messages</td><td>End-to-end encrypted; stored for delivery only</td><td><span class="yes-tag">&#x2713; Yes</span></td></tr>
+        <tr><td>Report/Complaint Text</td><td>To investigate and resolve disputes</td><td><span class="no-tag">&#x2715; Optional</span></td></tr>
+      </tbody>
+    </table>
+
+    <h2>2. What We Absolutely Do NOT Collect</h2>
+    <ul>
+      <li><strong>No plaintext passwords</strong> &mdash; all passwords are stored as secure cryptographic hashes.</li>
+      <li><strong>No message content</strong> &mdash; messages are end-to-end encrypted; we cannot read them.</li>
+      <li><strong>No tracking cookies</strong> &mdash; we do not use advertising or analytics tracking.</li>
+      <li><strong>No device fingerprinting</strong> &mdash; we do not track your device or browser.</li>
+      <li><strong>No location data</strong> &mdash; we never request or store your location.</li>
+      <li><strong>No contact lists</strong> &mdash; we do not access your phone or email contacts.</li>
+    </ul>
+
+    <h2>3. How We Use Your Information</h2>
+    <ul>
+      <li>To create, verify, and authenticate your account securely.</li>
+      <li>To display your name and avatar in conversations.</li>
+      <li>To deliver end-to-end encrypted messages to the intended recipient.</li>
+      <li>To show your online status (last seen) to users you are chatting with.</li>
+      <li>To investigate reports and enforce our Terms of Service.</li>
+      <li>To send essential transactional emails (verification, password reset).</li>
+    </ul>
+
+    <h2>4. Data Sharing</h2>
+    <p>We <strong>never sell, rent, or trade</strong> your personal information to third parties. We may share data only in these limited circumstances:</p>
+    <ul>
+      <li><strong>Legal obligations:</strong> If required by valid legal process (court order, subpoena).</li>
+      <li><strong>Safety:</strong> To prevent imminent harm or illegal activity.</li>
+      <li><strong>Service delivery:</strong> Only with essential service providers under strict data agreements (e.g., email delivery).</li>
+    </ul>
+
+    <h2>5. Data Security</h2>
+    <p>We implement multiple layers of security to protect your information:</p>
+    <ul>
+      <li>All connections use <strong>HTTPS/TLS</strong> encryption in transit.</li>
+      <li>Passwords are hashed using <strong>industry-standard algorithms</strong> (never stored in plaintext).</li>
+      <li>Session tokens are <strong>cryptographically secure</strong> and expire on logout.</li>
+      <li>Messages are <strong>end-to-end encrypted</strong> before leaving your device.</li>
+    </ul>
+    <p>Despite these measures, no internet transmission is 100% secure. Please use PChat responsibly and report any suspected security issues via the Report portal.</p>
+
+    <h2>6. Data Retention</h2>
+    <p>Your account data is retained for as long as your account is active. Messages are stored in encrypted form to enable delivery to offline recipients. When you request account deletion, we remove your personal information within <strong>30 days</strong>.</p>
+
+    <h2>7. Your Rights</h2>
+    <div class="rights-grid">
+      <div class="right-card"><div class="right-icon">&#x1F4CB;</div><div class="right-title">Access</div><div class="right-desc">Request a copy of all personal data we hold about you.</div></div>
+      <div class="right-card"><div class="right-icon">&#x270F;&#xFE0F;</div><div class="right-title">Correction</div><div class="right-desc">Update your name and status directly in Profile settings.</div></div>
+      <div class="right-card"><div class="right-icon">&#x1F5D1;&#xFE0F;</div><div class="right-title">Deletion</div><div class="right-desc">Request complete deletion of your account and associated data.</div></div>
+      <div class="right-card"><div class="right-icon">&#x1F6AB;</div><div class="right-title">Opt-Out</div><div class="right-desc">Unsubscribe from non-essential communications at any time.</div></div>
+      <div class="right-card"><div class="right-icon">&#x1F4E6;</div><div class="right-title">Portability</div><div class="right-desc">Export your chat history using the built-in Export Chat feature.</div></div>
+      <div class="right-card"><div class="right-icon">&#x26D4;</div><div class="right-title">Restriction</div><div class="right-desc">Request restriction of certain processing of your data.</div></div>
+    </div>
+    <p style="margin-top:12px;">To exercise any of these rights, use the <strong>Report portal</strong> in the app and select &ldquo;Privacy Request&rdquo; as the subject.</p>
+
+    <h2>8. Children's Privacy</h2>
+    <p>PChat is not directed at children under <strong>13 years of age</strong>. We do not knowingly collect personal information from children under 13. If you believe a child under 13 has registered an account, please report it immediately through the Report portal and we will promptly remove the account.</p>
+
+    <h2>9. Cookies &amp; Local Storage</h2>
+    <p>PChat uses:</p>
+    <ul>
+      <li><strong>Session cookies:</strong> Required for authentication &mdash; these expire when you log out.</li>
+      <li><strong>Local storage:</strong> To store your session token on the device &mdash; cleared on logout.</li>
+    </ul>
+    <p>We do <strong>not</strong> use advertising cookies, tracking pixels, or third-party analytics.</p>
+
+    <h2>10. Third-Party Services</h2>
+    <p>PChat uses <strong>UI Avatars</strong> (ui-avatars.com) to generate profile pictures from your initials. This service receives only a single letter and a color code &mdash; no personal data. No other third-party data processors are involved in the core messaging service.</p>
+
+    <h2>11. Changes to This Policy</h2>
+    <p>We may update this Privacy Policy from time to time. Significant changes will be communicated within the application. Continued use of PChat after changes are posted constitutes your acceptance of the updated policy.</p>
+
+    <h2>12. Contact Us</h2>
+    <p>For privacy-related requests, questions, or concerns, please use the <strong>in-app Report portal</strong> and include &ldquo;Privacy Request&rdquo; in the subject line. We will respond within a reasonable timeframe.</p>
+  </div>
+
+  <div class="last-updated">
+    Last updated: January 2025 &middot; PChat Encrypted Messaging Platform &middot; Version 2.0
+  </div>
+
+  <div class="nav-links">
+    <a href="terms.html" class="nav-link">&#x2190; Terms &amp; Conditions</a>
+    <a href="login.html" class="nav-link">Back to Login &#x2192;</a>
+  </div>
+</div>
+</body>
+</html>

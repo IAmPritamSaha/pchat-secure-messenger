@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>PChat — Reset Password</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Syne:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="assets/css/auth.css"/>
+</head>
+<body>
+<div class="ambient-bg"><div class="orb orb1"></div><div class="orb orb2"></div><canvas class="particle-canvas" id="particleCanvas"></canvas><div class="grid-overlay"></div></div>
+<div class="auth-container">
+  <div class="auth-brand"><div class="brand-hex">&#x2B21;</div><div class="brand-text"><span class="brand-name">PChat</span><span class="brand-tagline">New Password</span></div></div>
+  <div class="auth-card glass-card">
+    <div id="resetForm">
+      <h3 style="font-family:'Orbitron',sans-serif;font-size:1rem;margin-bottom:8px;color:var(--text-primary);">Set New Password</h3>
+      <p style="color:var(--text-muted);font-size:.88rem;margin-bottom:24px;">Choose a strong password for your account.</p>
+      <div class="form-group">
+        <label>New Password</label>
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" id="newPass" placeholder="Min 8 characters" autocomplete="new-password"/>
+          <button class="toggle-pass" onclick="const i=document.getElementById('newPass');i.type=i.type==='password'?'text':'password';" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Confirm Password</label>
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" id="confPass" placeholder="Repeat password" autocomplete="new-password"/>
+        </div>
+      </div>
+      <button class="btn-primary" id="saveBtn" onclick="doReset()">
+        <span class="btn-text">Save New Password</span>
+        <span class="btn-loader" style="display:none;"></span>
+      </button>
+      <div class="auth-status" id="resetStatus"></div>
+    </div>
+    <div id="doneMsg" style="display:none;text-align:center;padding:10px 0;">
+      <div style="font-size:52px;margin-bottom:14px;">&#x2705;</div>
+      <h3 style="font-family:'Orbitron',sans-serif;color:var(--accent);margin-bottom:12px;font-size:1rem;">Password Updated!</h3>
+      <p style="color:var(--text-muted);font-size:.88rem;margin-bottom:20px;">Your password has been changed successfully.</p>
+      <a href="login.html" class="btn-primary" style="display:inline-block;text-decoration:none;width:auto;padding:12px 32px;">Sign In Now</a>
+    </div>
+  </div>
+  <div class="auth-footer"><a href="login.html">&#x2190; Back to Login</a></div>
+</div>
+<div class="toast-container" id="toastContainer"></div>
+<script>
+async function doReset() {
+  const token = new URLSearchParams(location.search).get('token');
+  const pass = document.getElementById('newPass').value;
+  const conf = document.getElementById('confPass').value;
+  const status = document.getElementById('resetStatus');
+  const btn = document.getElementById('saveBtn');
+  if (!token) { status.textContent = 'Invalid reset link.'; status.className = 'auth-status error'; return; }
+  if (!pass || pass.length < 8) { status.textContent = 'Password must be at least 8 characters.'; status.className = 'auth-status error'; return; }
+  if (pass !== conf) { status.textContent = 'Passwords do not match.'; status.className = 'auth-status error'; return; }
+  btn.disabled = true;
+  btn.querySelector('.btn-text').style.display = 'none';
+  btn.querySelector('.btn-loader').style.display = 'inline-block';
+  try {
+    const r = await fetch('login.php', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action: 'reset_password', token, password: pass })
+    });
+    const d = await r.json();
+    if (d.success) {
+      document.getElementById('resetForm').style.display = 'none';
+      document.getElementById('doneMsg').style.display = 'block';
+    } else {
+      status.textContent = d.message || 'Reset failed. Link may have expired.';
+      status.className = 'auth-status error';
+      btn.disabled = false;
+      btn.querySelector('.btn-text').style.display = '';
+      btn.querySelector('.btn-loader').style.display = 'none';
+    }
+  } catch(e) {
+    status.textContent = 'Connection error.';
+    status.className = 'auth-status error';
+    btn.disabled = false;
+    btn.querySelector('.btn-text').style.display = '';
+    btn.querySelector('.btn-loader').style.display = 'none';
+  }
+}
+document.getElementById('confPass')?.addEventListener('keydown', e => { if(e.key==='Enter') doReset(); });
+(function(){const c=document.getElementById('particleCanvas');if(!c)return;const ctx=c.getContext('2d');c.width=window.innerWidth;c.height=window.innerHeight;const pts=Array.from({length:35},()=>({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.2+.3,dx:(Math.random()-.5)*.3,dy:(Math.random()-.5)*.3,a:Math.random()*.4+.08}));function draw(){ctx.clearRect(0,0,c.width,c.height);pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`rgba(0,245,195,${p.a})`;ctx.fill();p.x+=p.dx;p.y+=p.dy;if(p.x<0||p.x>c.width)p.dx*=-1;if(p.y<0||p.y>c.height)p.dy*=-1;});requestAnimationFrame(draw);}draw();})();
+</script>
+</body>
+</html>
