@@ -4,6 +4,11 @@ PChat is a modern web-based messaging application developed for the Indian marke
 
 ## 🚀 Key Features
 * **Private Messaging:** Secure user-to-user communication.
+* **Privacy-First Registration:** No phone number required. Users can sign up using only a verified email address to maintain a higher level of anonymity.
+* **Email Verification System:** Ensures secure account ownership without collecting sensitive mobile data.
+* **Private Messaging:** Secure user-to-user communication with a focus on data protection.
+* **Compliance Ready:** A modular administrative backend that allows for authorized data retrieval strictly for legal scenarios, balancing privacy with accountability.
+* **Modern UI:** Responsive, dark-themed interface built with glassmorphism aesthetics for a premium feel.
 * **Compliance Ready:** Designed with a modular administrative backend that allows for data retrieval in authorized legal or regulatory scenarios.
 * **Modern UI:** Responsive, dark-themed interface built with glassmorphism aesthetics.
 * **Sign-In/Sign-Up:** Complete user lifecycle management with secure authentication.
