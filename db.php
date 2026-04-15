@@ -1,12 +1,12 @@
 <?php
 // ─── DATABASE CONFIGURATION ──────────────────────────────────────────────────
 // Update these values to match your hosting environment
-define('DB_HOST', 'sql208.infinityfree.com');  // Your MySQL host
-define('DB_USER', 'if0_41467559');              // Your DB username
-define('DB_PASS', 'CzLXNQt1CKcR90');           // Your DB password
-define('DB_NAME', 'if0_41467559_pchat');        // Your database name
-define('SITE_URL', 'https://pchat.free.nf');    // Your site URL (no trailing slash)
-define('SITE_NAME', 'PChat');
+define('DB_HOST', 'your host name');  // Your MySQL host
+define('DB_USER', 'username');              // Your DB username
+define('DB_PASS', 'password');           // Your DB password
+define('DB_NAME', 'db name ');        // Your database name
+define('SITE_URL', 'your site url');    // Your site URL (no trailing slash)
+define('SITE_NAME', 'site name');
 
 // ─── GMAIL SMTP SETTINGS ──────────────────────────────────────────────
 // 1. Use your real Gmail address below
@@ -14,10 +14,10 @@ define('SITE_NAME', 'PChat');
 //    Go to: https://myaccount.google.com/apppasswords
 //    Create an App Password (requires 2FA enabled on your Google account)
 //    Paste that 16-character App Password in GMAIL_PASS below
-define('GMAIL_USER', 'sahapritam968@gmail.com');   // <-- change this
-define('GMAIL_PASS', 'wrdiqdqlqgzpcvif');    // <-- your 16-char App Password
-define('SMTP_FROM',  'sahapritam968@gmail.com');   // <-- same as GMAIL_USER
-define('SMTP_NAME',  'Pchat');
+define('GMAIL_USER', 'user male');   // <-- change this
+define('GMAIL_PASS', 'your app password');    // <-- your 16-char App Password
+define('SMTP_FROM',  'app mail');   // <-- same as GMAIL_USER
+define('SMTP_NAME',  'app name');
 // ──────────────────────────────────────────────────────────────────────
 
 function getDB(): PDO {
